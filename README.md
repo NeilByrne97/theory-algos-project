@@ -21,3 +21,4 @@ appears to be random bits. More recently it's used on blockchains for cryptocurr
 ## How the program works
 
 
+https://medium.com/@zaid960928/cryptography-explaining-sha-512-ad896365a0c1
