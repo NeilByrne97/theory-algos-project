@@ -41,9 +41,9 @@ int next_block(FILE *f, union Block *B, enum Status *S, uint64_t *nobits){
         } else if(nobytes < 56){
             // This happends when we have enough room for all the padding
             // Append a 1 but (and seven 0 bits to make a full bytes)
-            B->bytes[nobytes++] = 0x80; // in bits: 1000000
+            B->bytes[nobytes] = 0x80; // in bits: 1000000
             // Append enough 0 bits, leaving 64 at the end
-            for(; nobytes++ < 56; nobytes++){
+            for(nobytes++; nobytes < 56; nobytes++){
                 B->bytes[nobytes] = 0x00; // In bits: 0000000
             }
             // Append length of orignal input (CHECK ENDIANESS)
@@ -54,9 +54,10 @@ int next_block(FILE *f, union Block *B, enum Status *S, uint64_t *nobits){
             // Get to the end of the input message
             // Not enough room in this block for all padding
             // Append a 1 bit (and seven 0 bits to make a full byte)
-            B->bytes[nobytes] = 0x80;
+            B->bytes[nobytes++] = 0x80;
             // Append 0 bits
-            while(nobytes++ < 64){
+            for(nobytes++; nobytes < 64; nobytes++ ){
+                // Error: trying to write to B ->nobytes[64]
                 B->bytes[nobytes] = 0x00; // In bits: 0000000
             }
             // Change the status to PAD
