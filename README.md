@@ -1,6 +1,7 @@
-# Theory-of-Algorithms
+# Theory-of-Algorithms: Sha-512 Algorithm
 
 ### Student Name: Neil Byrne
+### Student Number: G00343624
 
 
 ## Introduction to SHA512
@@ -15,7 +16,7 @@ This algorithm like all other hash function is Collision Resistant: It is not fe
 find two distinct input strings that produce the same message digest.
 While this is algorithm is not so useful with encryption it is excellent to verify that digital 
 signatures on certificates haven't been changed, message authentication, and to generate what 
-appears to be random bits. More recently it's used on blockchains for cryptocurrency. 
+appears to be random bits. More recently it's used on blockchain for bitcoin. 
 
  
 # How the program works
@@ -28,33 +29,38 @@ Under the standard, each algorithm has it's own basic properties. The table belo
 
 ## Preprocessing
 Certain steps must be taken before an input can be put through the hash. Each of these steps are outlined in Section 5 Preprocessing.
-### Padding The Message
+### 1. Padding The Message
 The reason for padding is to ensure that the message is a multiple of 1024 bits
 
 PICTURE OF CODE
 
-### Parse message into the message blocks
+### 2. Parse message into the message blocks
 Once padded the message must be broke into blocks of 1024 bits 
 
 PICTURE OF CODE
 
 
-### Set initial hash value
-Before the hash computation begines and initial hash value <H<sup>(0)</sup> must be set to a 64 bit word. _These words were obtained
-by taking the first sixty-four bits of the fractional parts of the square root of the first eight prime numbers_.
+### 3. Set initial hash value
+Before the hash computation begines and initial hash value H<sup>(0)</sup> must be set to a 64 bit word. _These words were obtained
+by taking the first sixty-four bits of the fractional parts of the square root of the first eight prime numbers_ [1].
 
 PICTURE OF CODE
 
-## Running the programme
-# Environment
+## Running The Programme
+### Environment
 The only requirements to run this programme is a C compiler.
 
 
 
-## References
+# References
 1 https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
+
 2 https://medium.com/@zaid960928/cryptography-explaining-sha-512-ad896365a0c1
+
 3
+
 4
+
 5
+
 6
