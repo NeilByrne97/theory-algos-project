@@ -19,7 +19,7 @@ appears to be random bits. More recently it's used on blockchains for cryptocurr
 
  
 # How the program works
-_Under the standard, each algorithm has it's own basic properties. The table below is the basic properties for SHA-512.
+Under the standard, each algorithm has it's own basic properties. The table below is the basic properties for SHA-512.
 
 | Algorithm | Message Size (bits) | Block Size (bits) | Word Size (bits) | Message Digest Size (bits) |
 | --------- | ------------------- | ----------------- | ---------------- | -------------------------- |
@@ -28,16 +28,27 @@ _Under the standard, each algorithm has it's own basic properties. The table bel
 
 ## Preprocessing
 Certain steps must be taken before an input can be put through the hash. Each of these steps are outlined in Section 5 Preprocessing.
-# Padding The Message
+### Padding The Message
 The reason for padding is to ensure that the message is a multiple of 1024 bits
 
 PICTURE OF CODE
 
-# Parse message into the message blocks
+### Parse message into the message blocks
 Once padded the message must be broke into blocks of 1024 bits 
 
+PICTURE OF CODE
 
-3. Set initial hash value.
+
+### Set initial hash value
+Before the hash computation begines and initial hash value <H<sup>(0)</sup> must be set to a 64 bit word. _These words were obtained
+by taking the first sixty-four bits of the fractional parts of the square root of the first eight prime numbers_.
+
+PICTURE OF CODE
+
+## Running the programme
+# Environment
+The only requirements to run this programme is a C compiler.
+
 
 
 ## References
