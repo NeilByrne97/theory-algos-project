@@ -53,17 +53,18 @@ The only requirements to run this programme is a C compiler.
 
 # Questions
 ### 1. Why can't we reverse the SHA512 algorithm to retrieve the original message from a hash digest?
-The idea of hashes is that they are irreversible. Unlike encryption algorithms which require you to be able to retrieve the value back (to decrypt). Since we do not need to reverse the hash we can lose some information about the original message. All the addition within the algorithm is done without any overflow modulo <2<sup>128</sup>. Modulo can be imagined as a clock face that goes from 0 to N. Meaning everything between 0 and N is modular N. If an arithmetic is performed with modular N, no matter the size of it. You will simply go around the clock face. 
+The idea of hashes is that they are irreversible. A goode hash algorithm is much simpler going forwards than backwards [5]. Unlike encryption algorithms which require you to be able to retrieve the value back (to decrypt). Since we do not need to reverse the hash we can lose some information about the original message. All the addition within the algorithm is done without any overflow modulo <2<sup>128</sup>. Modulo can be imagined as a clock face that goes from 0 to N. Meaning everything between 0 and N is modular N. If an arithmetic is performed with modular N, no matter the size of it. You will simply go around the clock face.  In the scenario below N=17, there is no real way to dertimine where the answer will land on the clock [3]. 
 
 ![](images/Modulo1.png)
 
-Even if you know the position of your answer on the clock you stil don't know how many times that calculation went around the clock to get there. 
+Even if you know the position of your answer on the clock you still don't know how many times that calculation went around the clock to get there. The only way to solve these equations is with brute force for an infeasible amount of time. In order to produce a known lenght message digest of any size some data will be lost. The input can be any length but the lenght of the ouput is set by the algorithm. So, a lot of data is lost making it imposssible to determine the orignal data with just resulting hash [4]. 
 
 ![](images/Modulo2.png)
 
-If you reach the 64 bit maximum word size then you simply wrap back around again. 
+If you reach the 64 bit maximum word size then you simply wrap back around again losing information. 
 ### 2. Can you design an algorithm that, given enough time, will find input messages that give each of the possible 512-bit strings?
-md5
+While there is an infinite about of inputs of varying lenght to put through SHA512, there is only <2<sup>512</sup> possible outputs. This is known as the pigeonhole principle. If n items are put into m containers and n>m. Then at least one of the containers must contain more than one item. Inevitabily there are some hashes that could be derived from two distinct input strings. Given the output of a SHA512, it is NOT possible to unambiguosly recover the original input used. But given enough time it is possible to compute an input which yields the same output. This is called a Hash Collision. A requirement for all hash algorithms is to make this inevitablity to be astronomically unlikey. The probability for a collision in SHA512 is <1.4x10<sup>77</sup> [6]. Collision resistance does not mean that no collisons exist, only that they are extremely hard to find. Preimage attacks are an attempt to find an input that has a specific hash value. Older hash algorithms such as MD5 are now broken because of the increase in computing power and can be cracked with this kind of attack. 
+
 ### 3. How difficult is it to find a hash digest beginning with at least twelve zeros?
 
 
@@ -74,10 +75,10 @@ md5
 
 2 https://medium.com/@zaid960928/cryptography-explaining-sha-512-ad896365a0c1
 
-3
+3 https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/what-is-modular-arithmetic
 
-4
+4 https://privacycanada.net/hash-functions/why-are-hashes-irreversible/
 
-5
+5 https://security.stackexchange.com/questions/11717/why-are-hash-functions-one-way-if-i-know-the-algorithm-why-cant-i-calculate-t
 
-6
+6 https://stackoverflow.com/questions/35954964/is-sha-512-collision-resistant
