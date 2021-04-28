@@ -8,7 +8,7 @@ const int _i = 1;
 
 #define WLEN 64    // Length of word
 #define WORD uint64_t
-#define PF PRIX32   // Print format - 32 bits HEX
+#define PF PRIX64   // Print format - 64 bits HEX
 #define BYTE uint8_t
 // Page 5 of the Secure Hash Standard
 #define ROTL(x,n) ((x<<n)|(x>>(WLEN-n)))
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]){
     // Calculate the SHA512 of f
     sha512(f, H);
 
-    for(int i = 0;i < 16;i++)
+    for(int i = 0;i < 8;i++)
         printf("%08" PF, H[i]);
     printf("\n");
 
