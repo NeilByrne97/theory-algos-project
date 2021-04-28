@@ -1,7 +1,16 @@
-# Theory-of-Algorithms: Sha-512 Algorithm
+<h1 align="center">Theory-of-Algorithms: SHA-512 Algorithm</h1>
 
-### Student Name: Neil Byrne
-### Student Number: G00343624
+
+# Project Details
+| **Project Title** | SHA-512 Algorithm |
+| :------------- |:-------------|
+| **Course**              | BSc (Hons) in Software Development |
+| **Module**              | Theory of Algorithms |
+| **Institute**           | [Galway-Mayo Institute of Technology](https://www.gmit.ie/) |
+| **Student**             | [Neil Byrne](https://github.com/NeilByrne97) |
+| **Module Lecturer**      | [Ian McLoughlin](https://github.com/ianmcloughlin/) |
+
+***
 
 
 ## Introduction to SHA512
@@ -49,6 +58,22 @@ PICTURE OF CODE
 ## Running The Programme
 ### Environment
 The only requirements to run this programme is a C compiler.
+
+### Downlaod
+- Clone the repository
+- CD into the directory
+```bash
+$ git clone https://github.com/NeilByrne97/theory-algos-project
+```
+
+### Compile
+- CD into the cloned repository
+```bash
+$ gcc -o sha512 sha512.c
+$ ./sha512
+```
+
+### Execute
 
 
 # Questions

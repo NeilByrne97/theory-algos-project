@@ -1,5 +1,12 @@
 #include <stdio.h>
 #include <inttypes.h>
+#include <string.h> // strcpy
+
+
+// Command line 
+char fileName[100];
+char commandInput[100];
+int writeToFileInput(char inputString[]);
 
 // Endianess
 #include <byteswap.h>
@@ -87,7 +94,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
         *nobits = *nobits + (8 * nobytes);
         // Enough room for padding
         if(nobytes == 128){
-            // This happends when we can read 64 bytes from f
+            // This happends when we can read 128 bytes from f
             // Do nothing
         } else if(nobytes < 112){
             // This happends when we have enough room for all the padding
@@ -209,15 +216,66 @@ int main(int argc, char *argv[]){
     };
 
     FILE *f;
-    // Open file from command line for reading
-    f = fopen(argv[1], "r");
-    
-    // Calculate the SHA512 of f
-    sha512(f, H);
+    int menuOption;
+    printf("\n========= Theory of Algorithim ========= \n");
+    printf("\n========= Secure Hash 512 Algorithim ========= \n");
+    printf("\n========= Neil Byrne - G00343624 ========= \n");
 
+	// Check if file was entered as cmd argument.
+	if (argv[1] == NULL){
+		printf("Please select an option 1 or 2.\n");
+		printf("1: Calculate SHA-512 from file\n");
+		printf("2: Calculate SHA-512 from a string\n");
+        printf(">");
+		scanf("%d", &menuOption);
+
+		if (menuOption == 1){
+			printf("Please Enter File Name: ");
+			scanf("%s", fileName);
+			printf("Searching for %s.....\n", fileName);
+		}
+		else if (menuOption == 2){
+			printf("Please Enter a String: ");
+			scanf("%s", commandInput);
+			writeToFileInput(commandInput); // write the users input to a file.
+			strcpy(fileName, "userInput/inputStrings.txt");
+		}
+		else{
+			printf("Invalid option ");
+		}
+		f = fopen(fileName, "r");
+	}
+	else{
+		f = fopen(argv[1], "r");
+		strcpy(fileName, argv[1]);
+	}
+
+	// Check if file opened succesfully.
+	if (f == NULL){
+		printf("[ERROR]: Could not open file.\n");
+	}
+	else{
+		// Run Secure Hash Algorithim on the file.
+        printf("\n");
+        printf("\n========= SHA-512 Encryption ========= \n");
+
+		printf("File Read Successfully!\n\n");
+        printf("Now Running SHA-512 Hash Computation.....\n");
+
+        if(commandInput == NULL){
+            printf("Encrypting String: %s.....\n", fileName);
+        }else{
+		    printf("Encrypting String: %s\n", commandInput);
+        }
+		sha512(f, H);
+	}
+    // Print SHA-512 digest
+    printf("Encryption Complete!\n");
     for(int i = 0;i < 8;i++)
         printf("%" PF, H[i]);
     printf("\n");
+
+    printf("Encrypting String: %s.....\n", fileName);
 
     fclose(f);
 
@@ -225,3 +283,24 @@ int main(int argc, char *argv[]){
 
 }
 
+
+int writeToFileInput(char inputString[])
+{
+	FILE *inputFile;
+	char path[] = "userInput/inputStrings.txt";
+
+	// Open file in w (write) mode. (Overrides file)
+	inputFile = fopen(path, "w");
+
+	if (inputFile == NULL){
+		printf("Unable to write file.\n");
+		return 0;
+	}
+
+	// Write data to file .
+	fputs(inputString, inputFile);
+	// Close file to save file data.
+	fclose(inputFile);
+
+	return 1;
+}
