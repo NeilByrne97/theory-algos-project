@@ -7,7 +7,10 @@ const int _i = 1;
 #define islilend() ((*(char*)&_i) != 0)
 
 #define WLEN 64    // Length of word
+//#define WORD uint64_t
+#define __uint128_t __uint128_t
 #define WORD uint64_t
+
 #define PF PRIX64   // Print format - 64 bits HEX
 #define BYTE uint8_t
 // Page 5 of the Secure Hash Standard
@@ -25,23 +28,20 @@ const int _i = 1;
 #define Sig1(x) (ROTR(x, 19)^ROTR(x, 61)^SHR(x, 6))
 
 
-// SHA256 works on blocks of 512 bits
 // SHA512 works on blocks of 1024 bits
 union Block {
-    // 8 x 64 = 512 - dealing with block as bytes
-    // 8 x 128 = 1024
+    // 8 x 128 = 1024 - dealing with block as bytes
     BYTE bytes[128];
     // 64 x 16 = 1024 - dealing with block as words
     WORD words[16];
-    // 64 x 8 = 512 - dealing with the last 64 bits of the last block
-    uint64_t sixf[16];
+    // 128 x 8 = 1024 - dealing with the last 64 bits of the last block
+    __uint128_t sixf[8];
 };
 
 // Keeping track of where we are in the input message/padding
 enum Status{
     READ, PAD, END
 };
-
 
 const WORD K[] = {
     0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc,
@@ -74,7 +74,7 @@ WORD H[] = {
 
 // Returns 1 if it create a new block from original message or padding
 // Returns 0 if all padded message has already been consumed - DONE
-int next_block(FILE *f, union Block *M, enum Status *S, uint64_t *nobits){
+int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
     // Number of bytes read
     size_t nobytes;
 
@@ -82,22 +82,23 @@ int next_block(FILE *f, union Block *M, enum Status *S, uint64_t *nobits){
         return 0;
     } else if (*S == READ){
         // Try to read 64 bytes from the input file
-        nobytes = fread(M->bytes, 1, 64, f);
+        nobytes = fread(M->bytes, 1, 128, f);
         // Calculate total bits read so far
         *nobits = *nobits + (8 * nobytes);
         // Enough room for padding
-        if(nobytes == 64){
+        if(nobytes == 128){
             // This happends when we can read 64 bytes from f
             // Do nothing
-        } else if(nobytes < 56){
+        } else if(nobytes < 112){
             // This happends when we have enough room for all the padding
             // Append a 1 but (and seven 0 bits to make a full bytes)
             M->bytes[nobytes] = 0x80; // in bits: 1000000
             // Append enough 0 bits, leaving 64 at the end
-            for(nobytes++; nobytes < 56; nobytes++){
+            for(nobytes++; nobytes < 121; nobytes++){
                 M->bytes[nobytes] = 0x00; // In bits: 0000000
             }
             // Append length of orignal input (CHECK ENDIANESS)
+            //M->sixf[7] = *nobits;
             M->sixf[7] = (islilend() ? bswap_64(*nobits) : *nobits);
             *S = END;
 
@@ -107,7 +108,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, uint64_t *nobits){
             // Append a 1 bit (and seven 0 bits to make a full byte)
             M->bytes[nobytes++] = 0x80;
             // Append 0 bits
-            for(nobytes++; nobytes < 64; nobytes++ ){
+            for(nobytes++; nobytes < 128; nobytes++ ){
                 // Error: trying to write to B ->nobytes[64]
                 M->bytes[nobytes] = 0x00; // In bits: 0000000
             }
@@ -116,26 +117,27 @@ int next_block(FILE *f, union Block *M, enum Status *S, uint64_t *nobits){
         }
     } else if (*S == PAD){
         // Append 0 bits
-        for(nobytes = 0; nobytes < 56; nobytes++){
-           M->sixf[7] = (islilend() ? bswap_64(*nobits) : *nobits);
+        for(nobytes = 0; nobytes < 112; nobytes++){
+            M->bytes[nobytes] = 0x00; // In bits: 0000000
         }
         // Appends nobuts as an int. (CHECK ENDIANESS)
-        M->sixf[7] = *nobits;
+        M->sixf[7] = (islilend() ? bswap_64(*nobits) : *nobits);
+        //M->sixf[7] = *nobits;
         // Change the status to PAD
         *S = END;       
     }
 
-    // Swap the byte order of words if we're little endian
+    //Swap the byte order of words if we're little endian
     if(islilend())
         for(int i = 0; i < 16; i++)
-            M->words[i] = bswap_32(M->words[i]);
+            M->words[i] = bswap_64(M->words[i]);
 
     return 1;
 }
 
 int next_hash(union Block *M, WORD H[]){
     // Message schedule, Section 6.2.2
-    WORD W[128];
+    WORD W[80];
     //Iterator
     int t;
     // Temporary variables
@@ -184,11 +186,12 @@ int sha512(FILE *f, WORD H[]){ // The function that performs the SHA256 algorith
     // Current Block
     union Block M;
     // Total number of bits read
-    uint64_t nobits = 0;
+    __uint128_t nobits = 0;
     // Current status of reading input
     enum Status S = READ;
     
     // Loop through preproc blocks 
+    // For i=1 to N
     while (next_block(f, &M, &S, &nobits)){
             next_hash(&M, H);
     }
@@ -213,7 +216,7 @@ int main(int argc, char *argv[]){
     sha512(f, H);
 
     for(int i = 0;i < 8;i++)
-        printf("%08" PF, H[i]);
+        printf("%" PF, H[i]);
     printf("\n");
 
     fclose(f);
