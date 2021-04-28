@@ -1,23 +1,27 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-#define WLEN 32    // Length of word
+// Endianess
+#include <byteswap.h>
+const int _i = 1;
+#define islilend() ((*(char*)&_i) != 0)
+
 #define WORD uint32_t
 #define PF PRIX32   // Print format - 32 bits HEX
 #define BYTE uint8_t
 // Page 5 of the Secure Hash Standard
-#define ROTL(x,n) (x<<n)|(x>>(WLEN-n))
-#define ROTR(x,n) (x>>n)|(x<<(WLEN-n))
-#define SHR(x,n) x>>n
+#define ROTL(x,n) ((x<<n)|(x>>(sizeof(x)*8-n)))
+#define ROTR(x,n) ((x>>n)|(x<<(sizeof(x)*8-n)))
+#define SHR(x,n) (x>>n)
 
 // Page 10 of Secure Hash Standard
-#define CH(x,y,z) (x&y)^(~x&z)
-#define MAJ(x,y,z) (x&y)^(x&z)^(y&z)
+#define CH(x,y,z) ((x&y)^(~x&z))
+#define MAJ(x,y,z) ((x&y)^(x&z)^(y&z))
 
-#define SIG0(x) ROTR(x, 2)^ROTR(x, 13)^ROTR(x, 22)
-#define SIG1(x) ROTR(x, 6)^ROTR(x, 11)^ROTR(x, 25)
-#define Sig0(x) ROTR(x, 7)^ROTR(x, 18)^SHR(x, 3)
-#define Sig1(x) ROTR(x, 17)^ROTR(x, 19)^SHR(x, 10)
+#define SIG0(x) (ROTR(x, 2)^ROTR(x, 13)^ROTR(x, 22))
+#define SIG1(x) (ROTR(x, 6)^ROTR(x, 11)^ROTR(x, 25))
+#define Sig0(x) (ROTR(x, 7)^ROTR(x, 18)^SHR(x, 3))
+#define Sig1(x) (ROTR(x, 17)^ROTR(x, 19)^SHR(x, 10))
 
 // SHA256 works on blocks of 512 bits
 // SHA512 works on blocks of 1024 bits
@@ -77,7 +81,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, uint64_t *nobits){
         // Enough room for padding
         if(nobytes == 64){
             // This happends when we can read 64 bytes from f
-            return 1;
+            // Do nothing
         } else if(nobytes < 56){
             // This happends when we have enough room for all the padding
             // Append a 1 but (and seven 0 bits to make a full bytes)
@@ -87,7 +91,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, uint64_t *nobits){
                 M->bytes[nobytes] = 0x00; // In bits: 0000000
             }
             // Append length of orignal input (CHECK ENDIANESS)
-            M->sixf[7] = *nobits;
+            M->sixf[7] = (islilend() ? bswap_64(*nobits) : *nobits);
             *S = END;
 
         } else{
@@ -108,11 +112,16 @@ int next_block(FILE *f, union Block *M, enum Status *S, uint64_t *nobits){
         for(nobytes = 0; nobytes < 56; nobytes++){
             M->bytes[nobytes] = 0x00; // In bits: 0000000
         }
-        // Appends nobuts as an int. (CHECK ENDIANESS)
-        M->sixf[7] = *nobits;
+        // Appends no bits as an int. (CHECK ENDIANESS)
+        M->sixf[7] = (islilend() ? bswap_64(*nobits) : *nobits);
         // Change the status to PAD
         *S = END;       
     }
+
+    // Swap the byte order of words if we're little endian
+    if(islilend())
+        for(int i = 0; i < 16; i++)
+            M->words[i] = bswap_32(M->words[i]);
 
     return 1;
 }
@@ -158,6 +167,7 @@ int next_hash(union Block *M, WORD H[]){
     H[6] = g + H[6];
     H[7] = h + H[7];
 
+    return 0;
 }
 
 

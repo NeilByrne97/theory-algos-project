@@ -53,7 +53,7 @@ The only requirements to run this programme is a C compiler.
 
 # Questions
 ### 1. Why can't we reverse the SHA512 algorithm to retrieve the original message from a hash digest?
-The idea of hashes is that they are irreversible. A good hash algorithm is much simpler going forwards than backwards [5]. Unlike encryption algorithms which require you to be able to retrieve the value back (to decrypt). Since we do not need to reverse the hash we can lose some information about the original message. All the addition within the algorithm is done without any overflow modulo <2128. Modulo can be imagined as a clock face that goes from 0 to N. Meaning everything between 0 and N is modular N. If an arithmetic is performed with modular N, no matter the size of it. You will simply go around the clock face.  In the scenario below N=17, there is no real way to dertimine where the answer will land on the clock [3].
+The idea of hashes is that they are irreversible. A good hash algorithm is much simpler going forwards than backwards [5]. Unlike encryption algorithms which require you to be able to retrieve the value back (to decrypt). Since we do not need to reverse the hash we can lose some information about the original message. All the addition within the algorithm is done without any overflow modulo <2<sup>64</sup> . Modulo can be imagined as a clock face that goes from 0 to N. Meaning everything between 0 and N is modular N. If an arithmetic is performed with modular N, no matter the size of it. You will simply go around the clock face.  In the scenario below N=17, there is no real way to dertimine where the answer will land on the clock [3].
 
 ![](images/Modulo1.png)
 
