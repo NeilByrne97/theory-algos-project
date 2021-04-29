@@ -138,13 +138,17 @@ Since each of the 2<sup>b</sup> pre-images is the pre-image to exactly one diges
 ![](images/Preimage.png)
 ![](images/PreimageAVG.png)
 
-For SHA-512 - Each digest has on average 2<sup>1028-512</sup> = 2<sup>512</sup> different pre-images.
+This average statistic is known as the birthday paradox [11]. 
+Suppose SHA-512 hashing a 256-bit input - Each digest has on average 2<sup>512-256</sup> = 2<sup>256</sup> different pre-images.
 
-While that is a lot of collision, in comparison to the 2<sup>512</sup> possible digest, still extremely improbable[9].
+
+While that is a lot of collision it still extremely improbable[9] and will require an immense amount of time, storage, and power for 2<sup>256</sup> input values.
+
+In comparison, if we did the same attack on a SHA256 hash, we can use the data provided by Bitcoin miners to estimate how long it would take. Considering the miners are consistant at their top peak performance ≈ 2<sup>91</sup> hashes in a year, will take 2<sup>37</sup> years to find a collision [11].
 
 
 ### 3. How difficult is it to find a hash digest beginning with at least twelve zeros?
-Finding a hash with n amount of leading zeros is how the difficulty in Bitcoin mining is adjusted. A high difficulty means that it will take more computing power to mine the same number of blocks. The difficulty adjustment is directly related to the total estimated mining power estimated in the Total Hash Rate (TH/s) chart [7]. Bitcoin uses SHA256 so the message digest is half of SHA512 but the calculation is the same. The maximum target is a SHA512 digest with at least twelve zeros in front, which in hex is:
+Finding a hash with n amount of leading zeros is how the difficulty in Bitcoin mining is adjusted for SHA-256. A high difficulty means that it will take more computing power to mine the same number of blocks. The difficulty adjustment is directly related to the total estimated mining power estimated in the Total Hash Rate (TH/s) chart [7]. Bitcoin uses SHA256 so the message digest is half of SHA512 but the calculation is the same. The maximum target is a SHA512 digest with at least twelve zeros in front, which in hex is:
 0x000000000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
 Then we divide it by the maximum value of a 512-bit number, which in hex is:
@@ -156,6 +160,35 @@ Target / max512 = 3.06818x10-92
 
 Take the reciprocal of the probability to get the average number of hashes performed to solve this block.
 1/3.0618x-92 = 3.2594524e+91
+
+There is no shortcut around this probability, brute forcing is the only solution. Below is a brute forcing programme searching for the smallest (most leading zeros) digests [13].
+
+![](images/bruteforce.png)
+
+
+I ran the programme on my Lenovo ideapad 330 with i5+ 8th Gen with some other prcoesses running for 15 minutes. The smallest digest my computer calculated was:
+
+00000002bca95358bceed43bd61a046c21020b61ea9d2fda8ccede1070a9179be23abce9ce09e0a88d14459d836084b2f6700662d91064b26bb69db9e546a54c 
+
+
+Input: eorfqvllludbjqqg
+
+Seven leading zeros may seem close to twelve but if we look at the numbers we can see it is a long way off twelve. After 6 million hashes a digest with six leading zeros it took another two billion hashes to produce seven leading zeros. While it is difficult for humans mind to comprehend, this is an exponential increase.
+
+
+
+
+____
+
+
+
+
+
+
+
+
+
+
 
 
 # Tools
@@ -186,6 +219,8 @@ Take the reciprocal of the probability to get the average number of hashes perfo
 
 10 https://stackoverflow.com/questions/8999081/128-bit-values-on-64-bit-architecture-in-c
 
-11
+11 https://crypto.stackexchange.com/questions/68557/hash-collisions-in-sha512-hash-of-secp256k1-public-keys
 
-12
+12 https://link.springer.com/chapter/10.1007/11927587_5
+
+13 https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
