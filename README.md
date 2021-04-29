@@ -135,8 +135,8 @@ Let P(h) be the number of pre-images for hash digest h
 
 Since each of the 2<sup>b</sup> pre-images is the pre-image to exactly one digest
 
-(images/Preimage.png)
-(images/PreimageAVG.png)
+![](images/Preimage.png)
+![](images/PreimageAVG.png)
 
 For SHA-512 - Each digest has on average 2<sup>1028-512</sup> = 2<sup>512</sup> different pre-images.
 
@@ -156,6 +156,14 @@ Target / max512 = 3.06818x10-92
 
 Take the reciprocal of the probability to get the average number of hashes performed to solve this block.
 1/3.0618x-92 = 3.2594524e+91
+
+
+# Tools
+1. [GCC](https://gcc.gnu.org/) - C compiler
+2. [Git](https://git-scm.com/) - Version controller
+3. [GitHub](https://github.com/)- Web-based hosting service for Git version control
+4. [Online Hasher](https://emn178.github.io/online-tools/sha512.html) - Online hashing website
+
 
 # References
 1 https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf

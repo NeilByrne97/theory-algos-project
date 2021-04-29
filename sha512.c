@@ -217,6 +217,8 @@ int main(int argc, char *argv[]){
 
     FILE *f;
     int menuOption;
+
+
     printf("\n========= Theory of Algorithims ======== \n");
     printf("======= Secure Hash 512 Algorithim ========= \n");
     printf("========= Neil Byrne - G00343624 ========= \n");
@@ -271,9 +273,11 @@ int main(int argc, char *argv[]){
 	}
     // Print SHA-512 digest
     printf("Encryption Complete!\n");
+    printf("Message Digest: ");
+    
     for(int i = 0;i < 8;i++)
         printf("%" PF, H[i]);
-    printf("\n");
+    printf("\n================ END ================= \n");
 
     fclose(f);
 
