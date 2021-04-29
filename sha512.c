@@ -23,7 +23,7 @@ const int _i = 1;
 // Page 5 of the Secure Hash Standard
 #define ROTL(x,n) ((x<<n)|(x>>(WLEN-n)))
 #define ROTR(x,n) ((x>>n)|(x<<(WLEN-n)))
-#define SHR(x,n) x>>n
+#define SHR(x,n) (x>>n)
 
 // Page 10 of Secure Hash Standard
 #define CH(x,y,z) ((x&y)^(~x&z))
@@ -88,7 +88,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
     if(*S == END){
         return 0;
     } else if (*S == READ){
-        // Try to read 64 bytes from the input file
+        // Try to read 128 bytes from the input file
         nobytes = fread(M->bytes, 1, 128, f);
         // Calculate total bits read so far
         *nobits = *nobits + (8 * nobytes);
@@ -98,7 +98,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
             // Do nothing
         } else if(nobytes < 112){
             // This happends when we have enough room for all the padding
-            // Append a 1 but (and seven 0 bits to make a full bytes)
+            // Append a 1 bit (and seven 0 bits to make a full bytes)
             M->bytes[nobytes] = 0x80; // in bits: 1000000
             // Append enough 0 bits, leaving 64 at the end
             for(nobytes++; nobytes < 121; nobytes++){
@@ -276,7 +276,7 @@ int main(int argc, char *argv[]){
     printf("Message Digest: ");
     
     for(int i = 0;i < 8;i++)
-        printf("%" PF, H[i]);
+        printf("%016" PF, H[i]);
     printf("\n================ END ================= \n");
 
     fclose(f);
@@ -305,4 +305,11 @@ int writeToFileInput(char inputString[])
 	fclose(inputFile);
 
 	return 1;
+}
+
+int64_t swap_int64( int64_t val )
+{
+    val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
+    val = ((val << 16) & 0xFFFF0000FFFF0000ULL ) | ((val >> 16) & 0x0000FFFF0000FFFFULL );
+    return (val << 32) | ((val >> 32) & 0xFFFFFFFFULL);
 }
