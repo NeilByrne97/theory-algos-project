@@ -217,9 +217,9 @@ int main(int argc, char *argv[]){
 
     FILE *f;
     int menuOption;
-    printf("\n========= Theory of Algorithim ========= \n");
-    printf("\n========= Secure Hash 512 Algorithim ========= \n");
-    printf("\n========= Neil Byrne - G00343624 ========= \n");
+    printf("\n========= Theory of Algorithims ======== \n");
+    printf("======= Secure Hash 512 Algorithim ========= \n");
+    printf("========= Neil Byrne - G00343624 ========= \n");
 
 	// Check if file was entered as cmd argument.
 	if (argv[1] == NULL){
@@ -262,8 +262,8 @@ int main(int argc, char *argv[]){
 		printf("File Read Successfully!\n\n");
         printf("Now Running SHA-512 Hash Computation.....\n");
 
-        if(commandInput == NULL){
-            printf("Encrypting String: %s.....\n", fileName);
+        if(menuOption == 1){
+            printf("Encrypting File: %s\n", fileName);
         }else{
 		    printf("Encrypting String: %s\n", commandInput);
         }
@@ -274,8 +274,6 @@ int main(int argc, char *argv[]){
     for(int i = 0;i < 8;i++)
         printf("%" PF, H[i]);
     printf("\n");
-
-    printf("Encrypting String: %s.....\n", fileName);
 
     fclose(f);
 
