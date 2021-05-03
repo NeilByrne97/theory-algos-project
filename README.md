@@ -35,13 +35,38 @@ Under the standard, each algorithm has it's own basic properties. The table belo
 | --------- | ------------------- | ----------------- | ---------------- | -------------------------- |
 | SHA-512   | <2<sup>128</sup>    | 1024              | 64               | 512                        |
 
+## Functions and Constants
+Preset functions and contstants must be set before any computation is made. While the functions for all SHA hashes are the similar, they each have different discriptions.
+
+![](images/Functions.png)
+
+The constants are the first 64 bits of the frational parts of the cube roos of the first 80 prime numbers.
+
+![](images/KWord.png)
+
+
 
 ## Preprocessing
 Certain steps must be taken before an input can be put through the hash. Each of these steps are outlined in Section 5 Preprocessing.
+
 ### 1. Padding The Message
 The reason for padding is to ensure that the message is a multiple of 1024 bits
+* Append "1" bit to the end. - This shows the computer where the padding begins.
+* Add "0"s until there is 128 bits at the end. - 128 is left for the length of the message
+* Encode the last 128 bits in binary big-endian. - 
 
 PICTURE OF CODE
+
+### Edge Cases
+If we don't have enough bits left for padding at the end of the block.
+* Create a new message block.
+* Fill it with just padding..
+
+If the file is exactly 1028 bits.
+* Create another message block for the first padding bit "1".
+* Add the "0" bits.
+* The last 128 bits is the number of bits in the orignal file.
+
 
 ### 2. Parse message into the message blocks
 Once padded the message must be broke into blocks of 1024 bits
@@ -53,7 +78,38 @@ PICTURE OF CODE
 Before the hash computation begins and initial hash value H(0) must be set to a 64 bit word. _These words were obtained
 by taking the first sixty-four bits of the fractional parts of the square root of the first eight prime numbers_ [1].
 
-PICTURE OF CODE
+![](images/HValue.png)
+
+
+
+
+
+
+
+## SHA-512 Hash Computation
+### Prepare the Message Schedule
+
+Each Message block _M<sub>(1)</sub>, M<sub>(2)</sub>,.... M<sub>(N)</sub>_ is processed in order using the steps defined below:
+1. Prepare message schedule _W<sup>(t)</sup>_ 
+![](images/Part1.png)
+
+
+2. Initialze the eight working variables _a, b, c, d, e, f, g, h_ with their specified hash value
+![](images/Part2.png)
+
+
+
+3. For t=0 to 79  create new values for working variables.
+![](images/Part3.png)
+
+
+
+4. Compute the _i<sup>th</sup>_ intermediate hash value _H<sup>(i)</sup>_:
+![](images/Part4.png)
+
+
+
+
 
 ## Running The Programme
 ### Environment
