@@ -164,7 +164,7 @@ $ 2
 $ abc
 ```
 
-![](images/StringInputpng)
+![](images/StringInput.png)
 
 
 -----
@@ -176,18 +176,38 @@ This is a series of tests to ensure that the algoithm is working correctly. The 
 
 ![](images/abcdefghijk.png)
 
+#### SHA-512 Online
+
+![](images/Onlineabcdefghijk.png)
+
 
 ### G00343624
 
 ![](images/G00343624.png)
 
+
+#### SHA-512 Online
+
+![](images/OnlineG00343624.png)
+
+
 ### "" (Empty String)
 
 ![](images/Empty.png)
 
+#### SHA-512 Online
+
+![](images/OnlineEmpty.png)
+
+
 ### Long String
 
 ![](images/Hamlet.png)
+
+#### SHA-512 Online
+
+![](images/OnlineHamlet.png)
+
 -----
 
 
