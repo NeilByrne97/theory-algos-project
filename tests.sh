@@ -3,12 +3,12 @@
 echo "Checking file abc.txt"
 expec="DDAF35A193617ABACC417349AE20413112E6FA4E89A97EA20A9EEEE64B55D39A2192992A274FC1A836BA3C23A3FEEBBD454D4423643CE80E2A9AC94FA54CA49F"
 sha512sum="$(sha512sum tests/abc.txt)" 
-output="$(./sha512 tests/abc.txt)"
+output="$(./sha512 tests/abc.txt)"  # Lowercase
 sha512sumOut="$(sha512 tests/abc.txt)  abc.txt" 
 
 echo "Expected: " $expec
 echo "Output: " $output
-if [[ $output == $expec || $output == $sha512sumOut]]; then 
+if [[ $output == $expec ]]; then 
     echo " Pass ✓"
 else
     echo "Fail X"
