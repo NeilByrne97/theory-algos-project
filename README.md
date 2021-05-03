@@ -160,6 +160,11 @@ $ git clone https://github.com/NeilByrne97/theory-algos-project
 $ gcc -o sha512 sha512.c
 $ ./sha512
 ```
+or
+```bash
+$ make
+$ ./sha512
+```
 
 ### Execute
 The programme can be executed in 3 different methods.
