@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h> // strcpy
-
+//#include <byteswap.h>
 
 // Command line 
 char fileName[100];
@@ -9,9 +9,14 @@ char commandInput[100];
 int writeToFileInput(char inputString[]);
 
 // Endianess
-#include <byteswap.h>
 const int _i = 1;
 #define islilend() ((*(char*)&_i) != 0)
+#define SWAP_UINT32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24))
+#define SWAP_UINT64(x) \
+	( (((x) >> 56) & 0x00000000000000FF) | (((x) >> 40) & 0x000000000000FF00) | \
+	  (((x) >> 24) & 0x0000000000FF0000) | (((x) >>  8) & 0x00000000FF000000) | \
+	  (((x) <<  8) & 0x000000FF00000000) | (((x) << 24) & 0x0000FF0000000000) | \
+	  (((x) << 40) & 0x00FF000000000000) | (((x) << 56) & 0xFF00000000000000) )
 
 #define WLEN 64    // Length of word
 //#define WORD uint64_t
@@ -73,7 +78,7 @@ const WORD K[] = {
     0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 };
 
-// Section 5.3.4
+// Section 5.3.5
 WORD H[] = {
     0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
     0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
@@ -106,7 +111,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
             }
             // Append length of orignal input (CHECK ENDIANESS)
             //M->sixf[7] = *nobits;
-            M->sixf[7] = (islilend() ? bswap_64(*nobits) : *nobits);
+            M->sixf[7] = (islilend() ? SWAP_UINT64(*nobits) : *nobits);
             *S = END;
 
         } else{
@@ -128,7 +133,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
             M->bytes[nobytes] = 0x00; // In bits: 0000000
         }
         // Appends nobuts as an int. (CHECK ENDIANESS)
-        M->sixf[7] = (islilend() ? bswap_64(*nobits) : *nobits);
+        M->sixf[7] = (islilend() ? SWAP_UINT64(*nobits) : *nobits);
         //M->sixf[7] = *nobits;
         // Change the status to PAD
         *S = END;       
@@ -137,30 +142,31 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
     //Swap the byte order of words if we're little endian
     if(islilend())
         for(int i = 0; i < 16; i++)
-            M->words[i] = bswap_64(M->words[i]);
+            M->words[i] = SWAP_UINT64(M->words[i]);
 
     return 1;
 }
 
 int next_hash(union Block *M, WORD H[]){
-    // Message schedule, Section 6.2.2
+    // Message schedule, Section 6.4.2
     WORD W[80];
     //Iterator
     int t;
     // Temporary variables
     WORD a, b, c, d, e, f, g, h, T1, T2;
 
-    // Section 6.2.2 part 1
+    // Section 6.4.2 part 1
     for(t = 0; t < 16; t++)
+        W[t] = (islilend() ? SWAP_UINT32(M->words[t]) : W[t] = M->words[t]);
         W[t] = M->words[t];
     for(t = 16; t < 80; t++)
         W[t] = Sig1(W[t-2]) + W[t-7] + Sig0(W[t-15]) + W[t-16];
         
-    // Section 6.2.2 part 2
+    // Section 6.4.2 part 2
     a = H[0]; b = H[1]; c = H[2]; d = H[3];
     e = H[4]; f = H[5]; g = H[6]; h = H[7];
 
-    // Part 3
+    // Section 6.4.2 Part 3
     for(t = 0;t < 79; t++){
         T1 = h + SIG1(e) + CH(e, f, g) + K[t] + W[t];
         T2 = SIG0(a) + MAJ(a, b, c);
@@ -173,7 +179,7 @@ int next_hash(union Block *M, WORD H[]){
         b = a;
         a = T1 + T2;
     }
-    // Part 4
+    // Section 6.4.2 Part 4
     H[0] = a + H[0];
     H[1] = b + H[1];
     H[2] = c + H[2];
@@ -307,9 +313,3 @@ int writeToFileInput(char inputString[])
 	return 1;
 }
 
-int64_t swap_int64( int64_t val )
-{
-    val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
-    val = ((val << 16) & 0xFFFF0000FFFF0000ULL ) | ((val >> 16) & 0x0000FFFF0000FFFFULL );
-    return (val << 32) | ((val >> 32) & 0xFFFFFFFFULL);
-}
