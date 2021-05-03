@@ -11,7 +11,8 @@ int writeToFileInput(char inputString[]);
 // Endianess
 const int _i = 1;
 #define islilend() ((*(char*)&_i) != 0)
-#define SWAP_UINT32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24))
+
+// Adapted from http://www.firmcodes.com/write-c-program-convert-little-endian-big-endian-integer/
 #define SWAP_UINT64(x) \
 	( (((x) >> 56) & 0x00000000000000FF) | (((x) >> 40) & 0x000000000000FF00) | \
 	  (((x) >> 24) & 0x0000000000FF0000) | (((x) >>  8) & 0x00000000FF000000) | \
@@ -19,7 +20,6 @@ const int _i = 1;
 	  (((x) << 40) & 0x00FF000000000000) | (((x) << 56) & 0xFF00000000000000) )
 
 #define WLEN 64    // Length of word
-//#define WORD uint64_t
 #define __uint128_t __uint128_t
 #define WORD uint64_t
 
@@ -84,11 +84,31 @@ WORD H[] = {
     0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
 };
 
+// Split the 128 bit into 2 64 bits
+// Perform a bit swap on them both then join them
+__uint128_t byteSwap128(__uint128_t nobits)
+{
+    uint64_t first;
+    uint64_t second;
+    first =  nobits&0xFFFFFFFFFFFFFFFF;
+    second = (nobits>>64)&0xFFFFFFFFFFFFFFFF;
+
+    first = SWAP_UINT64(first);
+    second = SWAP_UINT64(second);
+    nobits =(((__uint128_t) first) << 64) | ((__uint128_t) second);
+
+    return nobits;
+}
+
+
 // Returns 1 if it create a new block from original message or padding
 // Returns 0 if all padded message has already been consumed - DONE
 int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
     // Number of bytes read
     size_t nobytes;
+
+    uint64_t int64_1;
+    uint64_t int64_2;
 
     if(*S == END){
         return 0;
@@ -104,14 +124,15 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
         } else if(nobytes < 112){
             // This happends when we have enough room for all the padding
             // Append a 1 bit (and seven 0 bits to make a full bytes)
-            M->bytes[nobytes] = 0x80; // in bits: 1000000
+            M->bytes[nobytes] = 0x80ULL; // in bits: 1000000
             // Append enough 0 bits, leaving 64 at the end
-            for(nobytes++; nobytes < 121; nobytes++){
-                M->bytes[nobytes] = 0x00; // In bits: 0000000
+            for(nobytes++; nobytes < 112; nobytes++){
+                M->bytes[nobytes] = 0x00ULL; // In bits: 0000000
             }
             // Append length of orignal input (CHECK ENDIANESS)
-            //M->sixf[7] = *nobits;
-            M->sixf[7] = (islilend() ? SWAP_UINT64(*nobits) : *nobits);
+
+            M->sixf[7] = (islilend() ? byteSwap128(*nobits) : *nobits);
+
             *S = END;
 
         } else{
@@ -132,18 +153,16 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
         for(nobytes = 0; nobytes < 112; nobytes++){
             M->bytes[nobytes] = 0x00; // In bits: 0000000
         }
-        // Appends nobuts as an int. (CHECK ENDIANESS)
-        M->sixf[7] = (islilend() ? SWAP_UINT64(*nobits) : *nobits);
-        //M->sixf[7] = *nobits;
+        // Appends nobits as an int. (CHECK ENDIANESS)
+        M->sixf[7] = (islilend() ? byteSwap128(*nobits) : *nobits);
         // Change the status to PAD
         *S = END;       
     }
 
-    //Swap the byte order of words if we're little endian
+    // Swap the byte order of words if we're little endian
     if(islilend())
         for(int i = 0; i < 16; i++)
             M->words[i] = SWAP_UINT64(M->words[i]);
-
     return 1;
 }
 
@@ -157,7 +176,6 @@ int next_hash(union Block *M, WORD H[]){
 
     // Section 6.4.2 part 1
     for(t = 0; t < 16; t++)
-        W[t] = (islilend() ? SWAP_UINT32(M->words[t]) : W[t] = M->words[t]);
         W[t] = M->words[t];
     for(t = 16; t < 80; t++)
         W[t] = Sig1(W[t-2]) + W[t-7] + Sig0(W[t-15]) + W[t-16];
@@ -167,7 +185,7 @@ int next_hash(union Block *M, WORD H[]){
     e = H[4]; f = H[5]; g = H[6]; h = H[7];
 
     // Section 6.4.2 Part 3
-    for(t = 0;t < 79; t++){
+    for(t = 0;t < 80; t++){
         T1 = h + SIG1(e) + CH(e, f, g) + K[t] + W[t];
         T2 = SIG0(a) + MAJ(a, b, c);
         h = g;
@@ -312,4 +330,5 @@ int writeToFileInput(char inputString[])
 
 	return 1;
 }
+
 
