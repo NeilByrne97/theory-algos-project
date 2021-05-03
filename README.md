@@ -114,7 +114,23 @@ Each Message block _M<sub>(1)</sub>, M<sub>(2)</sub>,.... M<sub>(N)</sub>_ is pr
 ![](images/Part4.png)
 
 
+## Little and Big Endian Check
+Little and big endian are two ways of storing data-types. Computers store data in binary. The endianness of a computer is the formatting that the bytes made from binary are formed. Little endian is when the least significant bytes are stored before the most significant bytes. Big endian is when the most significant bytes are stored before the least significant bytes.
 
+
+| Decimal | Hexadecimal | Little Endian | Big Endian | 
+| --------- | ------------------- | ----------------- | ---------------- | 
+| 30541986   | 0x12345678   | 78 56 34 12 | 12 34 56 78    |      
+| 2574739012 | 0x99776644 | 44 66 77 99 | 99 77 66 44 |
+| 2712847316 | 0xA1B2C3D4 | D4 C3 B2 A1  | A1 B2 C3 D4 | 
+
+Check if the machine is big or small endian. If little endian then SWAP_UNIT64 will convert to big endian. The byteswap.h library also contains built in methods to handle this.
+
+![](images/SWAPUNIT.png)
+
+However since the SHA-512 algorithm deals with 128 bits. It must be split up into two halves byte swapped and then joined back together. 
+
+![](images/bswap.png)
 
 
 ## Running The Programme
@@ -170,7 +186,14 @@ $ abc
 -----
 
 # Tests
-This is a series of tests to ensure that the algoithm is working correctly. The message digests are checked against an online SHA-512 hash programme [14].
+This is a series of tests to ensure that the algoithm is working correctly. The message digests are checked against an online SHA-512 hash programme [14]. There is also a shell script with the same test cases in this repository. 
+
+### Run Tests Script
+
+```bash 
+$ ./tests.sh
+
+```
 
 ### abcdefghijk
 
