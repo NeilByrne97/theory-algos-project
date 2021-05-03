@@ -23,7 +23,7 @@ will, with a very high probability, result in a completely different message dig
 that every possible message digest has the same probability to be produced for any given input string.
 This algorithm like all other hash function is Collision Resistant: It is not feasible to
 find two distinct input strings that produce the same message digest.
-While this is algorithm is not so useful with encryption it is excellent to verify that digital
+While this is algorithm is not useful with encryption it is excellent to verify that digital
 signatures on certificates haven't been changed, message authentication, and to generate what
 appears to be random bits. More recently it's used on blockchain for Bitcoin.
 
@@ -53,9 +53,9 @@ Certain steps must be taken before an input can be put through the hash. Each of
 The reason for padding is to ensure that the message is a multiple of 1024 bits
 * Append "1" bit to the end. - This shows the computer where the padding begins.
 * Add "0"s until there is 128 bits at the end. - 128 is left for the length of the message
-* Encode the last 128 bits in binary big-endian. - 
+* Append and encode the last 128 bits in binary big-endian. - 
 
-PICTURE OF CODE
+![](images/Padding.png)
 
 ### Edge Cases
 If we don't have enough bits left for padding at the end of the block.
@@ -67,11 +67,13 @@ If the file is exactly 1028 bits.
 * Add the "0" bits.
 * The last 128 bits is the number of bits in the orignal file.
 
+![](images/Edge.png)
+
 
 ### 2. Parse message into the message blocks
 Once padded the message must be broke into blocks of 1024 bits
 
-PICTURE OF CODE
+![](images/Block.png)
 
 
 ### 3. Set initial hash value
@@ -91,20 +93,24 @@ by taking the first sixty-four bits of the fractional parts of the square root o
 
 Each Message block _M<sub>(1)</sub>, M<sub>(2)</sub>,.... M<sub>(N)</sub>_ is processed in order using the steps defined below:
 1. Prepare message schedule _W<sup>(t)</sup>_ 
+
 ![](images/Part1.png)
 
 
 2. Initialze the eight working variables _a, b, c, d, e, f, g, h_ with their specified hash value
+
 ![](images/Part2.png)
 
 
 
 3. For t=0 to 79  create new values for working variables.
+
 ![](images/Part3.png)
 
 
 
 4. Compute the _i<sup>th</sup>_ intermediate hash value _H<sup>(i)</sup>_:
+
 ![](images/Part4.png)
 
 
@@ -140,7 +146,7 @@ The programme can be executed in 3 different methods.
 $ ./sha512 filename.txt
 ```
 
-PICTURE
+![](images/cmdArg.png)
 
 #### Runtime (File input)
 ```bash 
@@ -148,7 +154,8 @@ $ ./sha512
 $ 1
 $ fileName.txt
 ```
-PICTURE
+![](images/FileInput.png)
+
 
 #### Runtime (String Input)
 ```bash 
@@ -157,9 +164,32 @@ $ 2
 $ abc
 ```
 
-PICTURE
+![](images/StringInputpng)
+
 
 -----
+
+# Tests
+This is a series of tests to ensure that the algoithm is working correctly. The message digests are checked against an online SHA-512 hash programme [14].
+
+### abcdefghijk
+
+![](images/abcdefghijk.png)
+
+
+### G00343624
+
+![](images/G00343624.png)
+
+### "" (Empty String)
+
+![](images/Empty.png)
+
+### Long String
+
+![](images/Hamlet.png)
+-----
+
 
 
 # Questions
@@ -280,3 +310,5 @@ ____
 12 https://link.springer.com/chapter/10.1007/11927587_5
 
 13 https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
+
+14 https://emn178.github.io/online-tools/sha512.html

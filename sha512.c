@@ -86,10 +86,11 @@ WORD H[] = {
 
 // Split the 128 bit into 2 64 bits
 // Perform a bit swap on them both then join them
-__uint128_t byteSwap128(__uint128_t nobits)
+// Adapted from https://stackoverflow.com/questions/21507678/reverse-bytes-for-64-bit-value
+__uint128_t bSwap128(__uint128_t nobits)
 {
-    uint64_t first;
-    uint64_t second;
+    uint64_t first; // First 64
+    uint64_t second; // Last 64
     first =  nobits&0xFFFFFFFFFFFFFFFF;
     second = (nobits>>64)&0xFFFFFFFFFFFFFFFF;
 
@@ -106,9 +107,6 @@ __uint128_t byteSwap128(__uint128_t nobits)
 int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
     // Number of bytes read
     size_t nobytes;
-
-    uint64_t int64_1;
-    uint64_t int64_2;
 
     if(*S == END){
         return 0;
@@ -130,8 +128,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
                 M->bytes[nobytes] = 0x00ULL; // In bits: 0000000
             }
             // Append length of orignal input (CHECK ENDIANESS)
-
-            M->sixf[7] = (islilend() ? byteSwap128(*nobits) : *nobits);
+            M->sixf[7] = (islilend() ? bSwap128(*nobits) : *nobits);
 
             *S = END;
 
@@ -142,7 +139,6 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
             M->bytes[nobytes++] = 0x80;
             // Append 0 bits
             for(nobytes++; nobytes < 128; nobytes++ ){
-                // Error: trying to write to B ->nobytes[64]
                 M->bytes[nobytes] = 0x00; // In bits: 0000000
             }
             // Change the status to PAD
@@ -154,7 +150,7 @@ int next_block(FILE *f, union Block *M, enum Status *S, __uint128_t *nobits){
             M->bytes[nobytes] = 0x00; // In bits: 0000000
         }
         // Appends nobits as an int. (CHECK ENDIANESS)
-        M->sixf[7] = (islilend() ? byteSwap128(*nobits) : *nobits);
+        M->sixf[7] = (islilend() ? bSwap128(*nobits) : *nobits);
         // Change the status to PAD
         *S = END;       
     }
@@ -242,7 +238,6 @@ int main(int argc, char *argv[]){
     FILE *f;
     int menuOption;
 
-
     printf("\n========= Theory of Algorithims ======== \n");
     printf("======= Secure Hash 512 Algorithim ========= \n");
     printf("========= Neil Byrne - G00343624 ========= \n");
@@ -278,7 +273,7 @@ int main(int argc, char *argv[]){
 
 	// Check if file opened succesfully.
 	if (f == NULL){
-		printf("[ERROR]: Could not open file.\n");
+		printf("Could not open file!\n");
 	}
 	else{
 		// Run Secure Hash Algorithim on the file.
