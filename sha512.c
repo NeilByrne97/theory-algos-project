@@ -238,12 +238,12 @@ int main(int argc, char *argv[]){
     FILE *f;
     int menuOption;
 
-    printf("\n========= Theory of Algorithims ======== \n");
-    printf("======= Secure Hash 512 Algorithim ========= \n");
-    printf("========= Neil Byrne - G00343624 ========= \n");
 
 	// Check if file was entered as cmd argument.
 	if (argv[1] == NULL){
+        printf("\n========= Theory of Algorithims ======== \n");
+        printf("======= Secure Hash 512 Algorithim ========= \n");
+        printf("========= Neil Byrne - G00343624 ========= \n");
 		printf("Please select an option 1 or 2.\n");
 		printf("1: Calculate SHA-512 from file\n");
 		printf("2: Calculate SHA-512 from a string\n");
@@ -269,13 +269,16 @@ int main(int argc, char *argv[]){
 	else{
 		f = fopen(argv[1], "r");
 		strcpy(fileName, argv[1]);
+        sha512(f, H);
+        for(int i = 0;i < 8;i++)
+            printf("%016" PF, H[i]);
 	}
 
 	// Check if file opened succesfully.
 	if (f == NULL){
 		printf("Could not open file!\n");
 	}
-	else{
+	else if (argv[1] == NULL){
 		// Run Secure Hash Algorithim on the file.
         printf("\n");
         printf("\n========= SHA-512 Encryption ========= \n");
@@ -289,14 +292,15 @@ int main(int argc, char *argv[]){
 		    printf("Encrypting String: %s\n", commandInput);
         }
 		sha512(f, H);
+            // Print SHA-512 digest
+        printf("Encryption Complete!\n");
+        printf("Message Digest: ");
+        
+        for(int i = 0;i < 8;i++)
+            printf("%016" PF, H[i]);
+        printf("\n================ END ================= \n");
 	}
-    // Print SHA-512 digest
-    printf("Encryption Complete!\n");
-    printf("Message Digest: ");
-    
-    for(int i = 0;i < 8;i++)
-        printf("%016" PF, H[i]);
-    printf("\n================ END ================= \n");
+
 
     fclose(f);
 
